@@ -81,6 +81,9 @@ class UserController extends Controller
 
         $user = $this->userService->createUser($request->all(), $photoPath);
 
+        // Remove the token after user registration
+        $this->userService->removeToken($request);
+
         return response()->success(['message' => 'New user successfully registered', 'user_id' => $user->id], 201);
     }
 }

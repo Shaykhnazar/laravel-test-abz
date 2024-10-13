@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class UserService
 {
@@ -21,8 +22,18 @@ class UserService
             'email'      => $data['email'],
             'phone'      => $data['phone'],
             'position_id'=> $data['position_id'],
-            'password'   => Hash::make($data['password']),
+            'password'   => Hash::make('secret'),
             'photo'      => $photoPath,
         ]);
+    }
+
+    public function removeToken($request): void
+    {
+        // Delete the token after user registration
+        $token = $request->bearerToken(); // Retrieve the token from Authorization header
+        if ($token) {
+            $tokenRecord = PersonalAccessToken::findToken($token);
+            $tokenRecord?->delete();
+        }
     }
 }

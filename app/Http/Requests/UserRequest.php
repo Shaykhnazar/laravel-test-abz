@@ -36,7 +36,6 @@ class UserRequest extends FormRequest
                 'phone'      => ['required', 'regex:/^\+380\d{9}$/', 'unique:users,phone'],
                 'position_id'=> 'required|integer|exists:positions,id',
                 'photo'      => 'required|image|mimes:jpeg,jpg|max:5120|dimensions:min_width=70,min_height=70',
-                'password'   => 'required|string|min:6|max:60',
             ],
             default => [],
         };

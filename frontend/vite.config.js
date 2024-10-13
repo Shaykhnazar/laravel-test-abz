@@ -1,10 +1,12 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+
+const env = loadEnv('all', process.cwd());
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,10 +16,10 @@ export default defineConfig({
   plugins: [
     vue(),
     AutoImport({
-        resolvers: [ElementPlusResolver()],
+      resolvers: [ElementPlusResolver()],
     }),
     Components({
-        resolvers: [ElementPlusResolver()],
+      resolvers: [ElementPlusResolver()],
     }),
   ],
   resolve: {
@@ -26,11 +28,12 @@ export default defineConfig({
     }
   },
   server: {
-      host: true,
-      hmr: {
-          protocol: 'wss',
-          host: 'localhost',
-      },
-      https: true,
+    host: true,
+    port: env.VITE_ASSET_PORT,
+    strictPort: true,
+    hmr: {
+      host: env.VITE_ASSET_HOST,
+      port: env.VITE_ASSET_PORT,
+    },
   },
 })

@@ -15,7 +15,7 @@ class EnsureTokenIsValidMiddleware
     public function handle(Request $request, Closure $next)
     {
         // Retrieve the token from the request header
-        $token = $request->header('Token');
+        $token = $request->header('Authorization');
 
         if (!$token) {
             return response()->error('Token is required.', 401);
