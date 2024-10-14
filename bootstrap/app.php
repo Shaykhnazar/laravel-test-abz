@@ -42,6 +42,5 @@ return Application::configure(basePath: dirname(__DIR__))
         });
         $exceptions->render(function (InvalidUserIdException $exception, Request $request) {
             return response()->error($exception->getMessage(), $exception->getCode());
-            // TODO: add validation fails response
         });
     })->create();

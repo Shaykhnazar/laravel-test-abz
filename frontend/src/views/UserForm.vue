@@ -111,7 +111,7 @@ export default {
 
       try {
         const response = await api.users.createUser(formData, {
-          Authorization: `Bearer ${token}`,
+          Token: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         });
         notify({

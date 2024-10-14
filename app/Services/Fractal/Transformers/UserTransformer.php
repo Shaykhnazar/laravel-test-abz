@@ -20,7 +20,7 @@ class UserTransformer extends TransformerAbstract
             'position'              => $user->position->name ?? 'N/A',
             'position_id'           => $user->position_id,
             'registration_timestamp' => $user->created_at->timestamp,
-            'photo'                 => $user->photo ? url('storage/' . $user->photo) : null,
+            'photo'                  => $user->photo ?? null,
         ];
     }
 }

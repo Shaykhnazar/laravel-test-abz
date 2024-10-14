@@ -51,7 +51,9 @@ class UserController extends Controller
     {
         // Throw custom exception if ID is not valid
         if (!is_numeric($id) || intval($id) < 1) {
-            throw new InvalidUserIdException();
+            throw new InvalidUserIdException(
+                ['userId' => ["The user ID must be an integer."]]
+            );
         }
 
         // Find the user by ID, the validation already ensures the ID is valid

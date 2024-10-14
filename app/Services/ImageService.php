@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 use Tinify\Tinify;
 use Illuminate\Http\UploadedFile;
@@ -18,23 +19,21 @@ class ImageService
     {
         try {
             // Ensure Tinify API key is set
-            \Tinify\setKey(env('TINYPNG_API_KEY'));
+            $tinifyApiKey = env('TINYPNG_API_KEY');
+            \Tinify\setKey($tinifyApiKey);
 
-            // Generate a unique file name for the photo
-            $fileName = 'photos/' . uniqid() . '.jpg';
+            // Automatically generate a unique ID for filename...
+            $path = Storage::disk('public')->putFile('photos', $photo);
+            $fullFilePath = Storage::disk('public')->path($path);
 
-            // Store the uploaded file temporarily
-            $filePath = $photo->storeAs('photos', basename($fileName), 'public');
-
-            // Get the full path to the stored file
-            $fullFilePath = storage_path('app/public/' . $filePath);
+//            dd($path, $fullFilePath);
 
             // Compress the image using Tinify API
             $source = \Tinify\fromFile($fullFilePath);
 
-            // Resize the image to 70x70 using the 'fit' method
+            // Resize the image to required dimensions using the 'cover' method
             $resized = $source->resize([
-                "method" => "fit",
+                "method" => "cover",
                 "width" => 70,
                 "height" => 70
             ]);
@@ -43,10 +42,11 @@ class ImageService
             $resized->toFile($fullFilePath);
 
             // Return the relative file path for storing in the database
-            return $filePath;
+            return $path;
         } catch (\Exception $e) {
             // Handle any errors during the process
-            throw new \RuntimeException('Failed to process the photo. Error: ' . $e->getMessage());
+            $errorMessage = 'Failed to process the photo. Error: ' . $e->getMessage();
+            throw new \RuntimeException($errorMessage);
         }
     }
 }
