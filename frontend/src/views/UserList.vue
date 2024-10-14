@@ -15,32 +15,14 @@
           class="form-control w-auto"
           min="1"
         />
-        <label for="page" class="ms-3 me-2">Page:</label>
-        <input
-          type="number"
-          id="page"
-          v-model.number="currentPage"
-          @change="handlePageChange"
-          class="form-control w-auto"
-          min="1"
-        />
       </div>
       <ul class="list-group">
         <li v-for="user in users" :key="user.id" class="list-group-item">
           <router-link :to="`/users/${user.id}`">{{ user.name }}</router-link>
         </li>
       </ul>
-      <div class="pagination mt-3">
-        <button
-          v-if="prevPageUrl"
-          @click="loadPrevious"
-          class="btn btn-secondary me-2"
-        >
-          Previous
-        </button>
-        <button v-if="nextPageUrl" @click="loadNext" class="btn btn-primary">
-          Next
-        </button>
+      <div class="pagination mt-3" v-if="nextPageUrl">
+        <button @click="loadMore" class="btn btn-primary">Show More</button>
       </div>
     </div>
   </div>
@@ -55,9 +37,8 @@ export default {
       users: [],
       loading: true,
       nextPageUrl: null,
-      prevPageUrl: null,
       currentPage: 1,
-      countPerPage: 5,
+      countPerPage: 6,
     };
   },
   methods: {
@@ -67,7 +48,6 @@ export default {
         const response = await api.users.getUsers({ page, count });
         this.users = response.data.users;
         this.nextPageUrl = response.data.links.next_url;
-        this.prevPageUrl = response.data.links.prev_url;
         this.currentPage = response.data.page;
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -76,25 +56,25 @@ export default {
       }
     },
     handleCountChange() {
-      this.fetchUsers(1, this.countPerPage);
-    },
-    handlePageChange() {
+      // Reset to first page and fetch users with the new count value
+      this.users = [];
+      this.currentPage = 1;
       this.fetchUsers(this.currentPage, this.countPerPage);
     },
-    async loadNext() {
+    async loadMore() {
       if (this.nextPageUrl) {
         const nextPageParams = new URLSearchParams(this.nextPageUrl.split('?')[1]);
         const page = parseInt(nextPageParams.get('page'), 10);
         const count = parseInt(nextPageParams.get('count'), 10) || this.countPerPage;
-        await this.fetchUsers(page, count);
-      }
-    },
-    async loadPrevious() {
-      if (this.prevPageUrl) {
-        const prevPageParams = new URLSearchParams(this.prevPageUrl.split('?')[1]);
-        const page = parseInt(prevPageParams.get('page'), 10);
-        const count = parseInt(prevPageParams.get('count'), 10) || this.countPerPage;
-        await this.fetchUsers(page, count);
+
+        try {
+          const response = await api.users.getUsers({ page, count });
+          this.users = [...this.users, ...response.data.users];
+          this.nextPageUrl = response.data.links.next_url;
+          this.currentPage = response.data.page;
+        } catch (error) {
+          console.error('Error loading more users:', error);
+        }
       }
     },
   },
